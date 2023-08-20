@@ -735,11 +735,6 @@ def convert_ldm_clip_checkpoint(checkpoint):
 
     for key in keys:
         if key.startswith("cond_stage_model.transformer"):
-            if key[len("cond_stage_model.transformer."):].startswith("text_model"):
-                new_key = key[len("cond_stage_model.transformer."):]
-            else:
-                new_key = "text_model." + key[len("cond_stage_model.transformer."):]
-
             text_model_dict[new_key] = checkpoint[key]
 
     reload_dict = False
@@ -756,10 +751,13 @@ def convert_ldm_clip_checkpoint(checkpoint):
 
         for key in keys:
             if key.startswith("cond_stage_model.transformer"):
-                if key[len("cond_stage_model.transformer."):].startswith("text_model"):
-                    new_key = key[len("cond_stage_model.transformer."):]
+                remaining_key = key[len("cond_stage_model.transformer."):]
+                if remaining_key.startswith("text_model"):
+                    new_key = remaining_key
+                elif remaining_key.startswith("embeddings.position_ids"):
+                    new_key = key
                 else:
-                    new_key = "text_model." + key[len("cond_stage_model.transformer."):]
+                    new_key = "text_model." + remaining_key
 
                 text_model_dict[new_key] = checkpoint[key]
 
