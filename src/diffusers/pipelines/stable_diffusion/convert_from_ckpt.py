@@ -725,7 +725,6 @@ def convert_ldm_bert_checkpoint(checkpoint, config):
 
     return hf_model
 
-
 def convert_ldm_clip_checkpoint(checkpoint):
     text_model = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
 
@@ -764,9 +763,9 @@ def convert_ldm_clip_checkpoint(checkpoint):
         if "text_model.embeddings.position_ids" in text_model_dict:
             del text_model_dict["text_model.embeddings.position_ids"]
 
-		text_model.load_state_dict(text_model_dict)
-    return text_model
+        text_model.load_state_dict(text_model_dict)
 
+    return text_model
 
 textenc_conversion_lst = [
     ("cond_stage_model.model.positional_embedding", "text_model.embeddings.position_embedding.weight"),
