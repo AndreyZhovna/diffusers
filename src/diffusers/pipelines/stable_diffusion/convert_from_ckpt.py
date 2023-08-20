@@ -735,10 +735,26 @@ def convert_ldm_clip_checkpoint(checkpoint):
 
     for key in keys:
         if key.startswith("cond_stage_model.transformer"):
-            text_model_dict[key[len("cond_stage_model.transformer.") :]] = checkpoint[key]
+            key_error = False
+            text_model_dict[key[len("cond_stage_model.transformer."):]] = checkpoint[key]
 
-    text_model.load_state_dict(text_model_dict)
+    reload_dict = False
+    try:
+        text_model.load_state_dict(text_model_dict)
+    except:
+        print("Exception converting state_dict, using alt method.")
+        reload_dict = True
 
+    if reload_dict:
+        del text_model
+        text_model = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
+        text_model_dict = {}
+
+        for key in keys:
+            if key.startswith("cond_stage_model.transformer"):
+                text_model_dict["text_model." + key[len("cond_stage_model.transformer."):]] = checkpoint[key]
+
+        text_model.load_state_dict(text_model_dict)
     return text_model
 
 
